@@ -8,7 +8,7 @@
 
     node server.js # 启动nodejs服务
 
-启动好服务以后访问http://<hostname>/index_3344.html即可。发送弹幕的地址访问http://<hostname>/client.html
+启动好服务以后访问http://hostname/index_3344.html即可。发送弹幕的地址访问http://hostname/client.html
 
 #### 动态
 
