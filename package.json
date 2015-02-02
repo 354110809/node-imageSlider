@@ -1,0 +1,28 @@
+{
+  "name": "node-imageSlider",
+  "version": "1.0.0",
+  "description": "图片列表自定义播放效果，实时弹幕交流",
+  "main": "index_3344.html",
+  "dependencies": {
+    "ws": "^0.6.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "http://<hostname>/index_3344.html",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luofei2011/node-imageSlider.git"
+  },
+  "keywords": [
+    "imageslider",
+    "canvas"
+  ],
+  "author": "luofeihit2010@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luofei2011/node-imageSlider/issues"
+  },
+  "homepage": "https://github.com/luofei2011/node-imageSlider"
+}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"/>
+    <title>婚礼祝福</title>
+</head>
+<body>
+<style>
+body {margin:0;font-family: Arial}
+html, body {height: 100%;width: 100%;overflow:hidden}
+#send {
+    float: left;
+    width: 110px;
+    background: #3385ff;
+    border: 0 none;
+    border-bottom: 1px solid #2d78f4;
+    text-align: center;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+    color: #fff;
+    height: 36px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+}
+#send.disabled {
+	background: rgb(136, 136, 136);
+	border-bottom: 0 none;
+	cursor: default;
+}
+#send:hover {
+    background: #317ef3;
+    border-bottom: 1px solid #2868c8;
+    box-shadow: 1px 1px 1px #ccc;
+}
+#send.disabled:hover {
+	background: rgb(136, 136, 136);
+	border-bottom: 0 none;
+	box-shadow: none;
+}
+#send:focus, #zf:focus {
+    outline: none;
+}
+#zf {
+    float: left;
+    width: 494px;
+    height: 34px;
+    font-family: arial;
+    font-size: 1.4rem;
+    padding: 0;
+    padding-left: 6px;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    border: 1px solid #999;
+    border-color: #999 transparent #b3b3b3 #999;
+    -webkit-appearance: none;
+}
+#zf:focus {
+    border-color: #4791ff transparent #4791ff #4791ff;
+}
+.info {
+    position: fixed;
+    z-index: 999;
+    bottom: 10px;
+    left: 50%;
+    margin-left: -301px;
+}
+.info:after {
+    content: '';
+    display: block;
+    clear: both;
+    overflow: hidden;
+}
+#thank {
+    display: none;
+    width: 308px;
+    height: 227px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: 31px;
+    margin-left: -154px;
+    background: url('/icons/love.png') no-repeat;
+    z-index: 9999;
+}
+@media screen and (min-device-width: 1024px) {
+    #zf {
+        height: 60px;
+        font-size: 2rem;
+    }
+    #send {
+        height: 62px;
+    }
+    .info {
+        bottom: 50%;
+        margin-top: 31px;
+    }
+}
+</style>
+<div class="info">
+    <input type="text" id="zf" placeholder="姓名：快来送上你的祝福语吧~">
+    <button id="send">送上祝福</button>
+</div>
+<div id="container"></div>
+<div id="thank"></div>
+<script>
+var url = "ws://raptor.so";
+var ws = new WebSocket(url);
+
+ws.onopen = function() {
+    //console.log('client: open');
+}
+
+ws.onmessage = function(e) {
+    show_info(e.data);
+}
+
+ws.onclose = function() {
+    console.log('client: close');
+}
+
+var btn = document.getElementById('send');
+var txt = document.getElementById('zf');
+var container = document.getElementById('container');
+var width = document.body.offsetWidth;
+var height = document.body.offsetHeight;
+var label_top = 0;
+var list = [];
+var statusInfo = true;
+
+btn.onclick = function() {
+    var msg = txt.value.replace(/^\s*|\s*$/, '');
+	if (statusInfo) {
+		statusInfo = false;
+		this.className = "disabled";
+		startDelay();
+	} else {
+		return false;
+	}
+	
+    if (msg) {
+        var len = Math.min(msg.length, 20);
+        msg = msg.substr(0, len);
+		ws.send(msg);
+    }
+
+    txt.value = "";
+    Thank();
+    return false;
+}
+
+txt.onkeydown = function(e) {
+    if (e.keyCode === 13) {
+        btn.click();
+    }
+}
+
+function show_info(str) {
+    list.push(new DM({top: label_top, content: str}));
+    label_top += 20;
+    if (label_top > height - 20)
+        label_top = 0;
+}
+
+function startDelay() {
+	// 开始进行聊天信息发送倒计时
+	var time = 5; // 5s的倒计时时间
+	
+	var timer = setTimeout(function() {
+		btn.innerText = time + "s";
+		time--;
+		if (time >= 0) {
+			setTimeout(arguments.callee, 1000);
+		} else {
+			btn.innerText = "送上祝福";
+			statusInfo = true;
+			btn.className = "";
+		}
+	}, 0)
+}
+
+function DM(option) {
+    this.right = 0;
+    this.top = option.top;
+    this.dom = null;
+    this.status = 1;
+    this.speed = Math.ceil(Math.random() * 4);
+
+    this.init = function() {
+        var span = document.createElement('div');
+        span.style.position = 'fixed';
+        span.style.whiteSpace = "nowrap";
+        span.style.right = 0;
+        span.style.top = option.top + 'px';
+        span.innerText = option.content;
+
+        this.dom = span;
+        container.appendChild(span);
+    }
+    this.move = function() {
+        this.right += this.speed;
+        this.dom.style.right = this.right + 'px';
+
+        if (this.right > width)
+            this.destroy();
+    };
+    this.destroy = function() {
+        container.removeChild(this.dom);
+        this.dom = null;
+        this.status = 0;
+    }
+    this.init()
+    return this;
+}
+var frame = function() {
+    var i, len;
+    for (i = 0, len = list.length; i < len; i++) {
+        if (list[i].status) {
+            list[i].move();
+            continue;
+        }
+        list.splice(i, 1);
+        i--;
+        len = list.length;
+        //if (i > list.length - 1) break;
+    }
+    window.requestAnimationFrame(frame);
+}
+frame();
+try {
+    if (window.console && window.console.log) {
+        console.log("%c再次感谢您的祝福~", "color:blue");
+        console.log("关于我：http://poised-flw.com/");
+        console.log("如果你想学习，可以来这里：%c126274877", "color:red");
+        console.log("%c再再次感谢您的祝福~", "color:blue");
+    }
+} catch(e) {}
+
+var thankTimer = null;
+// 感谢动画播放
+function Thank() {
+    var frames = 6;
+    var width = 308;
+    var height = 227;
+    var thank = document.getElementById('thank');
+
+	window.clearTimeout(thankTimer);
+    // init
+    thank.style.display = 'block';
+
+    var index = frames - 1;
+    // animation
+    var f = function() {
+        thank.style.backgroundPosition = -index * width + 'px 0';
+        index -= 1;
+        if (index >= 0)
+            setTimeout(arguments.callee, 80);
+        else
+            thankTimer = setTimeout(function() {
+                thank.style.display = 'none';
+            }, 3000);
+    }
+    f();
+}
+</script>
+</body>
+</html>
